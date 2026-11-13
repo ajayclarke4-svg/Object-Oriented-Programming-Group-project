@@ -7,6 +7,12 @@
 #include "Merchandise.h"
 #include "Fooditem.h"
 #include "StadiumShop.h"
+#include "Stadium.h"
+#include "MatchOffical.h"
+#include "MatchResult.h"
+#include "Fixture.h"
+#include "FootballLeague.h"
+#include "LeagueCommissioner.h"
 using namespace std;
 
 int Frontscreen();
