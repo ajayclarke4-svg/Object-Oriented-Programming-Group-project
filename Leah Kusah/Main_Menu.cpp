@@ -1,5 +1,12 @@
 #include <iostream>
 #include <limits>
+#include <string>
+
+#include "Ticket.h"
+#include "Product.h"
+#include "Merchandise.h"
+#include "Fooditem.h"
+#include "StadiumShop.h"
 using namespace std;
 
 int Frontscreen();
