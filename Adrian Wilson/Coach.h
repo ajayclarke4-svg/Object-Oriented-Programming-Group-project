@@ -1,24 +1,36 @@
+#ifndef COACH_H
+#define COACH_H
 
-
-//Spectator Header File
-#ifndef SPECTATOR_H
-#define SPECTATOR_H
-#pragma once
-#include <string>
 #include "Person.h"
-// Step 1: the Spectator's own data only. Inheritance from Person comes next.
-class Spectator {
+#include <string>
+
+class Coach : public Person {
 private:
-    int ticketsBought;
+    std::string qualification;
+    std::string coachingRole;
+    int teamId;
 
 public:
-    Spectator();
-    Spectator(int tickets);
+    Coach();
+    Coach(int personId, const std::string& personName, int personAge, const std::string& personGender,
+          const std::string& coachQualification, const std::string& role, int teamIdentifier = 0);
 
-    int getTicketsBought() const;
-    void addTicket();
+    // Accessors
+    std::string getQualification() const;
+    std::string getCoachingRole() const;
+    int getTeamId() const;
 
-    void displayInformation() const;
+    // Mutators with validation
+    void setQualification(const std::string& newQual);
+    void setCoachingRole(const std::string& newRole);
+    void setTeamId(int newTeamId);
+
+    // Polymorphic display
+    virtual void displayInformation() const override;
+
+    // Storable interface methods
+    virtual std::string toRecord() const override;
+    virtual void fromRecord(const std::string& record) override;
 };
 
-#endif
+#endif // COACH_H

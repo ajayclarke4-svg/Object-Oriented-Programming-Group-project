@@ -26,14 +26,14 @@ string FoodItem::getPortionSize() {
 void FoodItem::setIsBeverage(bool beverage) {
     isBeverage = beverage;
 }
-void FoodItem::setPortionSize(const std::string& portion) {
+void FoodItem::setPortionSize(const string& portion) {
     if (portion.empty()) {
         throw InvalidDataException("Food item portion size cannot be empty.");
     }
     portionSize = portion;
 }
 void FoodItem::describe() const {
-    std::cout << "[Food/Drink] ID: " << productId
+    cout << "[Food/Drink] ID: " << productId
               << " | Name: " << name
               << " | Type: " << (isBeverage ? "Beverage" : "Food")
               << " | Portion: " << portionSize
@@ -45,7 +45,7 @@ string FoodItem::getProductType() const {
     return isBeverage ? "Beverage" : "Food";
 }
 string FoodItem::toRecord() const {
-    std::vector<std::string> fields;
+    vector<string> fields;
     fields.push_back("FoodItem");
     fields.push_back(FileManager::toText(productId));
     fields.push_back(name);

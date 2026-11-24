@@ -18,7 +18,6 @@ private:
     int totalItemsSold;
 public:
     static constexpr double SHOP_GCT_RATE = 0.15; // 15% GCT
-
     StadiumShop(){
         totalRevenue = 0.0;
         totalTaxCollected = 0.0;
@@ -34,16 +33,19 @@ public:
     // Inventory operations
     void addProduct(Product* product);
     bool removeProduct(int productId);
+
     Product* findProduct(int productId);
     const Product* findProduct(int productId) const;
+
     void restock(int productId, int quantity);
     void displayInventory() const;
-    const std::vector<Product*>& getInventory() const;
+    
+    const vector<Product*>& getInventory() const;
     void clearInventory();
 
     // Sales transactions
     // Calculates subtotal, tax, total payment, and change; throws InsufficientPaymentException or NegativeValueException
-    std::string completeSale(int productId, int quantity, double paymentAmount,
+    string completeSale(int productId, int quantity, double paymentAmount,
                              double& outSubtotal, double& outTax, double& outTotal, double& outChange);
 
     // Financial reporting

@@ -9,7 +9,6 @@ class Merchandise : public Product {
 private:
     string itemType;
     string size;
-
 public:
     Merchandise(){
         itemType = "Jersey";

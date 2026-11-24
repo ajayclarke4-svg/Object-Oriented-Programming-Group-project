@@ -13,10 +13,8 @@ protected:
     string name;
     double price;
     int stock;
-
 public:
     static constexpr double GCT_RATE = 0.15; // 15% General Consumption Tax
-
     Product(){
         productId = 0;
         name = "Unknown";
@@ -29,6 +27,7 @@ public:
         this->price = productPrice;
         this->stock = initialStock;
     };
+    
     virtual ~Product(){}
 
     // Accessors

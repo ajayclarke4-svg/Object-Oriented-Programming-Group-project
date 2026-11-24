@@ -4,11 +4,11 @@
 #include "Product.h"
 #include <string>
 using namespace std;
+
 class FoodItem : public Product {
 private:
     bool isBeverage;
     string portionSize;
-
 public:
     FoodItem(){
         isBeverage = false;
@@ -22,6 +22,7 @@ public:
         isBeverage = other.isBeverage;
         portionSize = other.portionSize;
     };
+
     // Accessors
     bool getIsBeverage(){
         return isBeverage;
@@ -29,6 +30,7 @@ public:
     string getPortionSize(){
         return portionSize;
     };
+
     // Mutators with validation
     void setIsBeverage(bool beverage){
             this->isBeverage = beverage;
