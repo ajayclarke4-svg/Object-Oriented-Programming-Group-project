@@ -21,7 +21,7 @@ int main() {
     cout << "======================================================================\n";
 
     try {
-        FootballLeague league("Kingston Premier Football League", 2026, "Data");
+        FootballLeague league("Kingston Premier Football League", 2026);
 
         cout << "\nAttempting to automatically preload persistent league records...\n";
         try {

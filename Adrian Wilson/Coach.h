@@ -1,77 +1,104 @@
 #ifndef COACH_H
 #define COACH_H
 
-#include "Person.h"
+#include <iostream>
 #include <string>
+#include <sstream>
+#include "Person.h"
+using namespace std;
 
+// ============================================================
+//  Coach — inherits Person
+//  Represents a team coach in the league.
+// ============================================================
 class Coach : public Person {
 private:
     string qualification;
-    string coachingRole;
+    string coachingRole;    // e.g. "Head Coach", "Assistant Coach"
     int teamId;
+
 public:
-    Coach(){
-        qualification = "?";
-        coachingRole = "?";
-        teamId = 0;
-    };
-    Coach(string coachQualification, string role, int teamIdentifier = 0): Person(0, "?", 0, "?") {
-        setQualification(coachQualification);
-        setCoachingRole(role);
-        setTeamId(teamIdentifier);
-    };
+    // Default constructor
+    Coach() : Person() {
+        this->qualification = "?";
+        this->coachingRole = "?";
+        this->teamId = 0;
+    }
 
-    // Accessors
-    string getQualification(){
-        return qualification;
-    };
-    string getCoachingRole(){
-        return coachingRole;
-    };
-    int getTeamId(){
-        return teamId;
-    };
-
-    // Mutators with validation
-    void setQualification(string newQual){
-        if (newQual.empty()) {
+    // Parameterised constructor
+    Coach(int personId, string personName, int personAge, string personGender,
+          string coachQualification, string coachRole, int coachTeamId)
+        : Person(personId, personName, personAge, personGender) {
+        if (coachQualification.empty()) {
             throw InvalidDataException("Coach qualification cannot be empty.");
         }
-        qualification = newQual;
-    };
-    void setCoachingRole(string newRole){
+        if (coachRole.empty()) {
+            throw InvalidDataException("Coaching role cannot be empty.");
+        }
+        this->qualification = coachQualification;
+        this->coachingRole = coachRole;
+        this->teamId = coachTeamId;
+    }
+
+    // ---- Getters ----
+    string getQualification() {
+        return qualification;
+    }
+    string getCoachingRole() {
+        return coachingRole;
+    }
+    int getTeamId() {
+        return teamId;
+    }
+
+    // ---- Setters ----
+    void setQualification(string newQualification) {
+        if (newQualification.empty()) {
+            throw InvalidDataException("Qualification cannot be empty.");
+        }
+        this->qualification = newQualification;
+    }
+    void setCoachingRole(string newRole) {
         if (newRole.empty()) {
             throw InvalidDataException("Coaching role cannot be empty.");
         }
-        coachingRole = newRole;
-    };
-    void setTeamId(int newTeamId){
-        if (newTeamId < 0) {
-            throw InvalidDataException("Team ID cannot be negative.");
-        }
-        teamId = newTeamId;
-    };
+        this->coachingRole = newRole;
+    }
+    void setTeamId(int newTeamId) {
+        this->teamId = newTeamId;
+    }
 
-    // Polymorphic display
-    virtual void displayInformation() override{
-        cout << "[Coach] ID: " << id
-              << " | Name: " << name
-              << " | Age: " << age
-              << " | Gender: " << gender
-              << " | Role: " << coachingRole
-              << " | Qualification: " << qualification
-              << " | Team ID: " << teamId << std::endl;
-    };
+    // ---- Override pure virtual methods ----
+    void displayInformation() {
+        cout << "=== Coach Information ===" << endl;
+        cout << "ID             : " << id << endl;
+        cout << "Name           : " << name << endl;
+        cout << "Age            : " << age << endl;
+        cout << "Gender         : " << gender << endl;
+        cout << "Qualification  : " << qualification << endl;
+        cout << "Coaching Role  : " << coachingRole << endl;
+        cout << "Team ID        : " << teamId << endl;
+    }
 
-    // Storable interface methods
-    virtual string toRecord() override{
+    string toRecord() {
+        // Format: id|name|age|gender|qualification|coachingRole|teamId
+        stringstream ss;
+        ss << id << "|" << name << "|" << age << "|" << gender << "|"
+           << qualification << "|" << coachingRole << "|" << teamId;
+        return ss.str();
+    }
 
-    };
-    virtual void fromRecord() override{
-        string record;
-
-    };
+    void fromRecord(string record) {
+        stringstream ss(record);
+        string token;
+        getline(ss, token, '|'); this->id = stoi(token);
+        getline(ss, this->name, '|');
+        getline(ss, token, '|'); this->age = stoi(token);
+        getline(ss, this->gender, '|');
+        getline(ss, this->qualification, '|');
+        getline(ss, this->coachingRole, '|');
+        getline(ss, token, '|'); this->teamId = stoi(token);
+    }
 };
 
-#endif // COACH_H
-
+#endif

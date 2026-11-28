@@ -1,30 +1,30 @@
-
-
 #ifndef FOOTBALLTEAM_H
 #define FOOTBALLTEAM_H
 
+#include <iostream>
 #include <string>
 #include <vector>
-#include "Storable.h"
+#include <sstream>
 #include "Player.h"
 #include "Coach.h"
-
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <string>
-#include <stdexcept>
 using namespace std;
 
-class FootballTeam : public Storable {
+// ============================================================
+//  FootballTeam — Aggregates Players and Coaches
+//  Tracks team standings in the league.
+// ============================================================
+class FootballTeam {
 private:
     int teamId;
     string name;
     string parish;
     string registrationNumber;
-    int squadSize;
-    string leagueStatus;
+    string leagueStatus;    // "Registered", "Suspended", "Unregistered"
 
+    vector<Player> players;
+    vector<Coach> coaches;
+
+    // League standing statistics
     int points;
     int matchesPlayed;
     int wins;
@@ -33,53 +33,50 @@ private:
     int goalsFor;
     int goalsAgainst;
 
-    vector<Player> players;
-    vector<Coach> coaches;
 public:
+    // Default constructor
     FootballTeam() {
-        teamId = 0;
-        name = "?";
-        parish = "?";
-        registrationNumber = "?";
-        squadSize = 0;
-        leagueStatus = "Unregistered";
-
-        points = 0;
-        matchesPlayed = 0;
-        wins = 0;
-        draws = 0;
-        losses = 0;
-        goalsFor = 0;
-        goalsAgainst = 0;
-    }
-    FootballTeam(
-        int newTeamId,
-        string newName,
-        string newParish,
-        string regNum,
-        string status) 
-    {
-        setTeamId(newTeamId);
-        setName(newName);
-        setParish(newParish);
-        setRegistrationNumber(regNum);
-        setLeagueStatus(status);
-
-        squadSize = 0;
-
-        points = 0;
-        matchesPlayed = 0;
-        wins = 0;
-        draws = 0;
-        losses = 0;
-        goalsFor = 0;
-        goalsAgainst = 0;
+        this->teamId = 0;
+        this->name = "?";
+        this->parish = "?";
+        this->registrationNumber = "?";
+        this->leagueStatus = "Unregistered";
+        this->points = 0;
+        this->matchesPlayed = 0;
+        this->wins = 0;
+        this->draws = 0;
+        this->losses = 0;
+        this->goalsFor = 0;
+        this->goalsAgainst = 0;
     }
 
-    //=====================
-    // GETTERS
-    //=====================
+    // Parameterised constructor
+    FootballTeam(int id, string teamName, string teamParish,
+                 string regNumber, string status) {
+        if (teamName.empty()) {
+            throw InvalidDataException("Team name cannot be empty.");
+        }
+        if (regNumber.empty()) {
+            throw InvalidDataException("Registration number cannot be empty.");
+        }
+        if (status != "Registered" && status != "Suspended" && status != "Unregistered") {
+            throw InvalidDataException("League status must be Registered, Suspended, or Unregistered.");
+        }
+        this->teamId = id;
+        this->name = teamName;
+        this->parish = teamParish;
+        this->registrationNumber = regNumber;
+        this->leagueStatus = status;
+        this->points = 0;
+        this->matchesPlayed = 0;
+        this->wins = 0;
+        this->draws = 0;
+        this->losses = 0;
+        this->goalsFor = 0;
+        this->goalsAgainst = 0;
+    }
 
+    // ---- Getters ----
     int getTeamId() {
         return teamId;
     }
@@ -91,9 +88,6 @@ public:
     }
     string getRegistrationNumber() {
         return registrationNumber;
-    }
-    int getSquadSize() {
-        return squadSize;
     }
     string getLeagueStatus() {
         return leagueStatus;
@@ -122,7 +116,6 @@ public:
     int getGoalDifference() {
         return goalsFor - goalsAgainst;
     }
-
     vector<Player>& getPlayers() {
         return players;
     }
@@ -130,89 +123,52 @@ public:
         return coaches;
     }
 
-    //=====================
-    // SETTERS
-    //=====================
-
-    void setTeamId(int newId) {
-
-        if (newId < 0) {
-            throw InvalidDataException(
-                "Team ID cannot be negative.");
-        }
-
-        teamId = newId;
-    }
+    // ---- Setters ----
     void setName(string newName) {
-
         if (newName.empty()) {
-            throw InvalidDataException(
-                "Team name cannot be empty.");
+            throw InvalidDataException("Team name cannot be empty.");
         }
-
-        name = newName;
+        this->name = newName;
     }
     void setParish(string newParish) {
-
-        if (newParish.empty()) {
-            throw InvalidDataException(
-                "Parish cannot be empty.");
-        }
-
-        parish = newParish;
+        this->parish = newParish;
     }
-    void setRegistrationNumber(string regNum) {
-
-        if (regNum.empty()) {
-            throw InvalidDataException(
-                "Registration number cannot be empty.");
+    void setLeagueStatus(string newStatus) {
+        if (newStatus != "Registered" && newStatus != "Suspended" && newStatus != "Unregistered") {
+            throw InvalidDataException("League status must be Registered, Suspended, or Unregistered.");
         }
-
-        registrationNumber = regNum;
-    }
-    void setLeagueStatus(string status) {
-
-        if (
-            status != "Registered" &&
-            status != "Unregistered" &&
-            status != "Suspended"
-        ) {
-            throw InvalidDataException(
-                "Invalid League Status.");
-        }
-
-        leagueStatus = status;
+        this->leagueStatus = newStatus;
     }
 
-    //=====================
-    // PLAYERS
-    //=====================
+    // ---- Business rule: eligibility check ----
+    // A team is eligible to play only if it is Registered
+    bool isEligibleForFixture() {
+        return leagueStatus == "Registered";
+    }
 
-    void addPlayer(Player player) {
-        for (int i = 0; i < players.size(); i++) {
-            if (players[i].getId() == player.getId()) {
-                throw InvalidDataException("Player already exists.");
+    // ---- Player management ----
+    void addPlayer(Player p) {
+        // Check for duplicate jersey number within the team
+        for (int i = 0; i < (int)players.size(); i++) {
+            if (players[i].getJerseyNumber() == p.getJerseyNumber()) {
+                throw DuplicateEntryException("Jersey number " + to_string(p.getJerseyNumber()) + " is already taken in this team.");
             }
         }
-        player.setTeamId(teamId);
-
-        players.push_back(player);
-
-        squadSize = players.size();
+        players.push_back(p);
     }
-    bool removePlayer(int playerId) {
-        for (int i = 0; i < players.size(); i++) {
+
+    void removePlayer(int playerId) {
+        for (int i = 0; i < (int)players.size(); i++) {
             if (players[i].getId() == playerId) {
                 players.erase(players.begin() + i);
-
-                squadSize = players.size();
-                return true;
+                return;
             }
         }
-        return false;
+        throw PlayerNotFoundException("Player with ID " + to_string(playerId) + " not found in team.");
     }
+
     Player* findPlayer(int playerId) {
-        for (int i = 0; i < players.size(); i++) {
+        for (int i = 0; i < (int)players.size(); i++) {
             if (players[i].getId() == playerId) {
                 return &players[i];
             }
@@ -220,137 +176,120 @@ public:
         return nullptr;
     }
 
-    //=====================
-    // COACHES
-    //=====================
-
-    void addCoach(Coach coach) {
-        for (int i = 0; i < coaches.size(); i++) {
-            if (coaches[i].getId() == coach.getId()) {
-                throw InvalidDataException("Coach already exists.");
-            }
-        }
-        coach.setTeamId(teamId);
-
-        coaches.push_back(coach);
+    // ---- Coach management ----
+    void addCoach(Coach c) {
+        coaches.push_back(c);
     }
-    bool removeCoach(int coachId) {
-        for (int i = 0; i < coaches.size(); i++) {
+
+    void removeCoach(int coachId) {
+        for (int i = 0; i < (int)coaches.size(); i++) {
             if (coaches[i].getId() == coachId) {
-                    coaches.erase(
-                    coaches.begin() + i);
-
-                return true;
+                coaches.erase(coaches.begin() + i);
+                return;
             }
         }
-        return false;
+        throw InvalidDataException("Coach with ID " + to_string(coachId) + " not found in team.");
     }
-    Coach* findCoach(int coachId) {
-        for (int i = 0; i < coaches.size(); i++) {
-            if (coaches[i].getId()
-                == coachId) {
 
-                return &coaches[i];
-            }
+    // ---- League standing update ----
+    // Called after each match to update standings
+    // Rule: Win = 3 pts, Draw = 1 pt, Loss = 0 pts
+    void recordMatchResult(int scored, int conceded) {
+        if (scored < 0) {
+            throw NegativeValueException("Goals scored cannot be negative.");
         }
-        return nullptr;
-    }
-
-    //=====================
-    // TEAM STATS
-    //=====================
-
-    void recordMatchResult(int goalsScored, int goalsConceded ) {
-        if (
-            goalsScored < 0 ||
-            goalsConceded < 0
-        ) {
-            throw NegativeValueException(
-                "Goals cannot be negative.");
+        if (conceded < 0) {
+            throw NegativeValueException("Goals conceded cannot be negative.");
         }
         matchesPlayed++;
-        goalsFor += goalsScored;
-        goalsAgainst += goalsConceded;
+        goalsFor += scored;
+        goalsAgainst += conceded;
 
-        if (goalsScored > goalsConceded) {
+        if (scored > conceded) {
             wins++;
             points += 3;
-        }
-        else if (goalsScored == goalsConceded) {
+        } else if (scored == conceded) {
             draws++;
             points += 1;
-        }
-        else {
+        } else {
             losses++;
         }
     }
 
-    //=====================
-    // DISPLAY
-    //=====================
-
-    void displayInformation() {
-
-        cout << "\n[TEAM]"
-             << "\nID: " << teamId
-             << "\nName: " << name
-             << "\nParish: " << parish
-             << "\nReg#: " << registrationNumber
-             << "\nStatus: " << leagueStatus
-             << "\nPlayers: " << squadSize
-             << "\nPoints: " << points
-             << endl;
+    // ---- Display ----
+    void displayTeamInfo() {
+        cout << "=== Team Information ===" << endl;
+        cout << "ID                  : " << teamId << endl;
+        cout << "Name                : " << name << endl;
+        cout << "Parish              : " << parish << endl;
+        cout << "Registration No.    : " << registrationNumber << endl;
+        cout << "League Status       : " << leagueStatus << endl;
+        cout << "Players Registered  : " << players.size() << endl;
+        cout << "Coaches Registered  : " << coaches.size() << endl;
     }
 
-    //=====================
-    // FILE HANDLING
-    //=====================
+    void displayStandings() {
+        cout << "=== Team Standings ===" << endl;
+        cout << "Team              : " << name << endl;
+        cout << "Matches Played    : " << matchesPlayed << endl;
+        cout << "Wins              : " << wins << endl;
+        cout << "Draws             : " << draws << endl;
+        cout << "Losses            : " << losses << endl;
+        cout << "Goals For         : " << goalsFor << endl;
+        cout << "Goals Against     : " << goalsAgainst << endl;
+        cout << "Goal Difference   : " << getGoalDifference() << endl;
+        cout << "Points            : " << points << endl;
+    }
 
+    void displayPlayers() {
+        cout << "=== Players of " << name << " ===" << endl;
+        if (players.empty()) {
+            cout << "No players registered." << endl;
+            return;
+        }
+        for (int i = 0; i < (int)players.size(); i++) {
+            players[i].displayInformation();
+            cout << "--------------------------" << endl;
+        }
+    }
+
+    void displayCoaches() {
+        cout << "=== Coaches of " << name << " ===" << endl;
+        if (coaches.empty()) {
+            cout << "No coaches registered." << endl;
+            return;
+        }
+        for (int i = 0; i < (int)coaches.size(); i++) {
+            coaches[i].displayInformation();
+            cout << "--------------------------" << endl;
+        }
+    }
+
+    // ---- File record ----
     string toRecord() {
-        return
-            FileManager::toText(teamId) + "," + name + "," + parish + "," + registrationNumber + "," +
-            FileManager::toText(squadSize) + "," + leagueStatus + "," +
-            FileManager::toText(points) + "," +
-            FileManager::toText(matchesPlayed) + "," +
-            FileManager::toText(wins) + "," +
-            FileManager::toText(draws) + "," +
-            FileManager::toText(losses) + "," +
-            FileManager::toText(goalsFor) + "," +
-            FileManager::toText(goalsAgainst);
+        stringstream ss;
+        ss << teamId << "|" << name << "|" << parish << "|"
+           << registrationNumber << "|" << leagueStatus << "|"
+           << points << "|" << matchesPlayed << "|" << wins << "|"
+           << draws << "|" << losses << "|" << goalsFor << "|" << goalsAgainst;
+        return ss.str();
     }
 
     void fromRecord(string record) {
-        vector<string> fields =
-            FileManager::splitFields(record);
-        if (fields.size() < 13) {
-            throw runtime_error(
-                "FootballTeam record requires 13 fields.");
-        }
-        setTeamId(FileManager::toInt(fields[0]));
-
-        setName(fields[1]);
-
-        setParish(fields[2]);
-
-        setRegistrationNumber(fields[3]);
-
-        squadSize = FileManager::toInt(fields[4]);
-
-        setLeagueStatus(fields[5]);
-
-        points = FileManager::toInt(fields[6]);
-
-        matchesPlayed = FileManager::toInt(fields[7]);
-
-        wins = FileManager::toInt(fields[8]);
-
-        draws = FileManager::toInt(fields[9]);
-
-        losses = FileManager::toInt(fields[10]);
-
-        goalsFor = FileManager::toInt(fields[11]);
-
-        goalsAgainst = FileManager::toInt(fields[12]);
+        stringstream ss(record);
+        string token;
+        getline(ss, token, '|'); this->teamId = stoi(token);
+        getline(ss, this->name, '|');
+        getline(ss, this->parish, '|');
+        getline(ss, this->registrationNumber, '|');
+        getline(ss, this->leagueStatus, '|');
+        getline(ss, token, '|'); this->points = stoi(token);
+        getline(ss, token, '|'); this->matchesPlayed = stoi(token);
+        getline(ss, token, '|'); this->wins = stoi(token);
+        getline(ss, token, '|'); this->draws = stoi(token);
+        getline(ss, token, '|'); this->losses = stoi(token);
+        getline(ss, token, '|'); this->goalsFor = stoi(token);
+        getline(ss, token, '|'); this->goalsAgainst = stoi(token);
     }
 };
 

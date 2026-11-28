@@ -770,7 +770,7 @@ public:
             while (getline(coachFile, line)) {
                 if (!line.empty()) {
                     Coach c;
-                    c.fromRecord();
+                    c.fromRecord(line);
                     FootballTeam* t = findTeam(c.getTeamId());
                     if (t != nullptr) {
                         t->getCoaches().push_back(c);
@@ -857,12 +857,12 @@ public:
                 if (!line.empty()) {
                     if (line.substr(0, 5) == "MERCH") {
                         Merchandise* m = new Merchandise();
-                        m->fromRecord(line);
+                        m->fromRecord();
                         shop.getInventory().push_back(m);
                         if (m->getProductId() >= nextProductId) nextProductId = m->getProductId() + 1;
                     } else if (line.substr(0, 4) == "FOOD") {
                         FoodItem* f = new FoodItem();
-                        f->fromRecord(line);
+                        f->fromRecord();
                         shop.getInventory().push_back(f);
                         if (f->getProductId() >= nextProductId) nextProductId = f->getProductId() + 1;
                     }

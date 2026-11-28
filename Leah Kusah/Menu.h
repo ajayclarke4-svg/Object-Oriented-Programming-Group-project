@@ -119,8 +119,7 @@ private:
                     league.addCoachToTeam(tid, name, age, gender, qual, role);
 
                 } else if (choice == 6) {
-                    int tid = readInt("Team ID: ");
-                    league.displayTeamPlayers(tid);
+                    league.displayAllTeams();
 
                 } else if (choice == 0) {
                     back = true;

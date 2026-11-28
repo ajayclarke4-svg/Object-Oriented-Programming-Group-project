@@ -1,129 +1,138 @@
-//Player Header File
 #ifndef PLAYER_H
 #define PLAYER_H
-#include "Person.h"
-#include "filemanager.h"
-#include "Exceptions.h"
+
+#include <iostream>
 #include <string>
+#include <sstream>
+#include "Person.h"
+using namespace std;
 
-
-// Step 1: the Player's own data only. Inheritance from Person comes next.
+// ============================================================
+//  Player — inherits Person
+//  Represents a football player in the league.
+// ============================================================
 class Player : public Person {
 private:
     string position;
     int jerseyNumber;
     int goals;
-    string playingStatus;
+    string playingStatus;   // "Active" or "Suspended"
     int teamId;
+
 public:
-
-    Player(){
-        position = "?";
-        jerseyNumber = 0;
-        goals = 0;
-        playingStatus = "?";
-        teamId = 0;
+    // Default constructor
+    Player() : Person() {
+        this->position = "?";
+        this->jerseyNumber = 1;
+        this->goals = 0;
+        this->playingStatus = "Active";
+        this->teamId = 0;
     }
-    Player(string playerPosition, int shirtNumber, int goalsScored, string status, int teamId): Person(0,"?",0,"?"){
-        this-> position = playerPosition;
-        this-> jerseyNumber = shirtNumber;
-        this-> goals = goalsScored;
-        this-> playingStatus = status;
-        this-> teamId = teamId;
-    };
 
-    //Getter 
-    string getPosition(){
+    // Parameterised constructor
+    Player(int personId, string personName, int personAge, string personGender,
+           string playerPosition, int playerJersey, string playerStatus, int playerTeamId)
+        : Person(personId, personName, personAge, personGender) {
+        // Rule: player must be at least 16 years old
+        if (personAge < 16) {
+            throw InvalidDataException("Player age must be at least 16.");
+        }
+        // Jersey number must be between 1 and 99
+        if (playerJersey < 1 || playerJersey > 99) {
+            throw InvalidDataException("Jersey number must be between 1 and 99.");
+        }
+        this->position = playerPosition;
+        this->jerseyNumber = playerJersey;
+        this->goals = 0;
+        this->playingStatus = playerStatus;
+        this->teamId = playerTeamId;
+    }
+
+    // ---- Getters ----
+    string getPosition() {
         return position;
-    };
-    int getJerseyNumber(){
+    }
+    int getJerseyNumber() {
         return jerseyNumber;
-    };
-    int getGoals(){
+    }
+    int getGoals() {
         return goals;
-    };
-    string getPlayingStatus(){
+    }
+    string getPlayingStatus() {
         return playingStatus;
-    };
-    int getteamID(){
+    }
+    int getTeamId() {
         return teamId;
     }
 
-    //Setter
-    void setPosition(string newPosition){
+    // ---- Setters ----
+    void setPosition(string newPosition) {
         if (newPosition.empty()) {
-            throw InvalidDataException("Player position cannot be empty.");
+            throw InvalidDataException("Position cannot be empty.");
         }
-        position = newPosition;     
-    };
-    void setJerseyNumber(int newNumber){
-        if (newNumber < 1 || newNumber > 99) {
-            throw InvalidDataException("Jersey number must be between 1 and 99. Provided: " + FileManager::toText(newNumber));
+        this->position = newPosition;
+    }
+    void setJerseyNumber(int newJersey) {
+        if (newJersey < 1 || newJersey > 99) {
+            throw InvalidDataException("Jersey number must be between 1 and 99.");
         }
-        jerseyNumber = newNumber;
-    };
-    void setPlayingStatus(string newStatus){
-        if (newStatus.empty()) {
-            throw InvalidDataException("Playing status cannot be empty.");
-        }
-        playingStatus = newStatus;
-        
-    };
-    void addGoals(int newGoals){
+        this->jerseyNumber = newJersey;
+    }
+    void setGoals(int newGoals) {
         if (newGoals < 0) {
-                throw NegativeValueException("Goals cannot be negative. Provided: " + FileManager::toText(newGoals));
-            }
-            goals = newGoals;
-    };
-    void Player::setTeamId(int newTeamId) {
-    if (newTeamId < 0) {
-            throw InvalidDataException("Team ID cannot be negative.");
+            throw NegativeValueException("Goals cannot be negative.");
         }
-        teamId = newTeamId;
+        this->goals = newGoals;
+    }
+    void addGoal() {
+        this->goals++;
+    }
+    void setPlayingStatus(string newStatus) {
+        if (newStatus != "Active" && newStatus != "Suspended") {
+            throw InvalidDataException("Playing status must be 'Active' or 'Suspended'.");
+        }
+        this->playingStatus = newStatus;
+    }
+    void setTeamId(int newTeamId) {
+        this->teamId = newTeamId;
     }
 
-    // Output
-    void displayInformation(){
-        cout << "[Player] ID: " << id
-              << " | Name: " << name
-              << " | Age: " << age
-              << " | Gender: " << gender
-              << " | Pos: " << position
-              << " | Jersey: #" << jerseyNumber
-              << " | Goals: " << goals
-              << " | Status: " << playingStatus
-              << " | Team ID: " << teamId << endl;
-    };
-
-    virtual string toRecord( ) override{
-       
+    // ---- Override pure virtual methods ----
+    void displayInformation() {
+        cout << "=== Player Information ===" << endl;
+        cout << "ID            : " << id << endl;
+        cout << "Name          : " << name << endl;
+        cout << "Age           : " << age << endl;
+        cout << "Gender        : " << gender << endl;
+        cout << "Position      : " << position << endl;
+        cout << "Jersey No.    : " << jerseyNumber << endl;
+        cout << "Goals Scored  : " << goals << endl;
+        cout << "Status        : " << playingStatus << endl;
+        cout << "Team ID       : " << teamId << endl;
     }
 
-    virtual void fromRecord () override{
-        string record;
-        vector<string> fields = FileManager::splitFields(record);
-        if (fields.size() < 9) {
-            throw InvalidDataException("Player record requires 9 fields: " + record);
-        }
-        setTeamId(FileManager::toInt(fields[0]));
+    string toRecord() {
+        // Format: id|name|age|gender|position|jerseyNumber|goals|playingStatus|teamId
+        stringstream ss;
+        ss << id << "|" << name << "|" << age << "|" << gender << "|"
+           << position << "|" << jerseyNumber << "|" << goals << "|"
+           << playingStatus << "|" << teamId;
+        return ss.str();
+    }
 
-        setName(fields[1]);
-        
-        int a = FileManager::toInt(fields[2]);
-
-        if (a < 18) {
-            throw InvalidDataException("Player " + fields[1] + " does not meet minimum age rule.");
-        }
-
-        setAge(a);
-        setGender(fields[3]);
-        setPosition(fields[4]);
-        setJerseyNumber(FileManager::toInt(fields[5]));
-        addGoals(FileManager::toInt(fields[6]));
-        setPlayingStatus(fields[7]);
-        setTeamId(FileManager::toInt(fields[8]));
-        }
-
+    void fromRecord(string record) {
+        stringstream ss(record);
+        string token;
+        getline(ss, token, '|'); this->id = stoi(token);
+        getline(ss, this->name, '|');
+        getline(ss, token, '|'); this->age = stoi(token);
+        getline(ss, this->gender, '|');
+        getline(ss, this->position, '|');
+        getline(ss, token, '|'); this->jerseyNumber = stoi(token);
+        getline(ss, token, '|'); this->goals = stoi(token);
+        getline(ss, this->playingStatus, '|');
+        getline(ss, token, '|'); this->teamId = stoi(token);
+    }
 };
 
 #endif
