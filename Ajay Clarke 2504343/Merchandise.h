@@ -10,15 +10,18 @@ private:
     string itemType;
     string size;
 public:
+    //Default Constructor
     Merchandise(){
         itemType = "Jersey";
         size = "Standard";
     };
-    Merchandise(int id, const string& name, double price, int stock, const string& type, const string& itemSize)
+    //Primary Constructor 
+    Merchandise(int id, string name, double price, int stock, string type, string itemSize)
                 :Product(id, name, price, stock){
         itemType = type;
         size = itemSize;
     };
+    //Copy Construtor
     Merchandise(const Merchandise& other)
                 :Product(other){
         itemType = other.itemType;
@@ -34,13 +37,13 @@ public:
     };
 
     // Mutators with validation
-    void setItemType(const string& type){
+    void setItemType(string type){
         if (type.empty()) {
             throw InvalidDataException("Merchandise item type cannot be empty.");
         }
         itemType = type;
     };
-    void setSize(const string& itemSize){
+    void setSize(string itemSize){
         if (itemSize.empty()) {
             throw InvalidDataException("Merchandise size cannot be empty.");
         }
@@ -48,8 +51,10 @@ public:
     };
 
     // Polymorphic methods
-    virtual void describe() const override;
-    virtual string getProductType() const override;
+    virtual void describe()override{
+
+
+    };
 
     // Storable interface methods
     virtual string toRecord() const override;

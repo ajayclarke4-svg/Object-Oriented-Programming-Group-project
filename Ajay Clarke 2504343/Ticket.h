@@ -3,7 +3,6 @@
 
 #include <string>
 #include "Storable.h"
-
 class Ticket : public Storable {
 private:
     int ticketId;
@@ -14,8 +13,7 @@ private:
     int spectatorId;
 
 public:
-    static constexpr double TICKET_GCT_RATE = 0.15; // 15% GCT
-
+    static const double TICKET_GCT_RATE = 0.15; // GCT
     Ticket(){
         ticketId = 0;
         fixtureId = 0;

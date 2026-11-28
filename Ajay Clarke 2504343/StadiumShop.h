@@ -6,10 +6,9 @@
 #include "Product.h"
 #include "Merchandise.h"
 #include "Fooditem.h"
- using namespace std;
+using namespace std;
 
  
-
 class StadiumShop {
 private:
     vector<Product*> inventory;
@@ -17,18 +16,20 @@ private:
     double totalTaxCollected;
     int totalItemsSold;
 public:
-    static constexpr double SHOP_GCT_RATE = 0.15; // 15% GCT
+    static constexpr double SHOP_GCT_RATE = 0.15; // GCT
+
+    //Default Constructor
     StadiumShop(){
         totalRevenue = 0.0;
         totalTaxCollected = 0.0;
         totalItemsSold = 0;
     };
-    
+    //Destructor
     ~StadiumShop();
 
     // Prevent accidental shallow copies
     StadiumShop(const StadiumShop&) = delete;
-    StadiumShop& operator=(const StadiumShop&) = delete;
+    StadiumShop& operator = (const StadiumShop&) = delete;
 
     // Inventory operations
     void addProduct(Product* product);

@@ -10,14 +10,17 @@ private:
     bool isBeverage;
     string portionSize;
 public:
+    //Default Constructor
     FoodItem(){
         isBeverage = false;
         portionSize = "Regular";
     };
+    //Primary Constructor
     FoodItem(int id, const string& name, double price, int stock, bool beverage, const string& portion = "Regular"):Product(id, name, price, stock){
         isBeverage = beverage;
         portionSize = portion;
     };
+    //Copy Constructor
     FoodItem(const FoodItem& other):Product(other){
         isBeverage = other.isBeverage;
         portionSize = other.portionSize;
@@ -35,13 +38,14 @@ public:
     void setIsBeverage(bool beverage){
             this->isBeverage = beverage;
     };
-    void setPortionSize(const string& portion){
+    void setPortionSize(string portion){
         this->portionSize = portion;
     };
     
     // Polymorphic methods
-    virtual void describe() const override;
-    virtual string getProductType() const override;
+    virtual void describe() override{
+
+    };
 
     // Storable interface methods
     virtual string toRecord() const override;

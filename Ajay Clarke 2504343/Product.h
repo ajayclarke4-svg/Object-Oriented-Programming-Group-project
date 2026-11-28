@@ -14,20 +14,22 @@ protected:
     double price;
     int stock;
 public:
-    static constexpr double GCT_RATE = 0.15; // 15% General Consumption Tax
+    static const double GCT_RATE = 0.15; //General Consumption Tax
+    //Default Constructor
     Product(){
         productId = 0;
         name = "Unknown";
         price = 0.0;
         stock = 0;
     };
+    //Primary Constructor 
     Product(int id, const string& productName, double productPrice, int initialStock){
         this->productId = id;
         this->name = productName;
         this->price = productPrice;
         this->stock = initialStock;
     };
-    
+    //Destructor
     virtual ~Product(){}
 
     // Accessors
@@ -46,32 +48,33 @@ public:
 
     // Mutators with validation
     void setProductId(int id){
-        if (id < 0) {
-            throw InvalidDataException("Product ID cannot be negative.");
+        if (id <= 0) {
+            throw InvalidDataException("Product ID cannot be negativem or zero.");
         }
         this->productId = id;
     };
-    void setName(const string& newName){
-        if (newName.empty()) {
+    void setName(string Name){
+        if (Name.empty()) {
             throw InvalidDataException("Product name cannot be empty.");
         }
-        this->name = newName;
+        this->name = Name;
     };
-    void setPrice(double newPrice){
-        if (newPrice < 0) {
-            throw InvalidDataException("Product price cannot be negative.");
+    void setPrice(double Price){
+        if (Price <= 0) {
+            throw InvalidDataException("Product price cannot be negative or free.");
         }
-        this->price = newPrice;
+        this->price = Price;
     };
-    void setStock(int newStock){
-        if (newStock < 0) {
+    void setStock(int Stock){
+        if (Stock < 0) {
             throw InvalidDataException("Product stock cannot be negative.");
         }
-        this->stock = newStock;
+        this->stock = Stock;
     };
+
     void addStock(int quantity){
         if (quantity <= 0) {
-            throw InvalidDataException("Quantity to add must be positive.");
+            throw InvalidDataException("Quantity to add must be positive number.");
         }
         this->stock += quantity;
     };
@@ -82,16 +85,17 @@ public:
         if (quantity > this->stock) {
             throw InvalidDataException("Not enough stock to reduce.");
         }
-        this->stock -= quantity;
+        else{
+            this->stock -= quantity;
+        }
     };
 
     // Tax calculation
-    virtual double calculateTax(int quantity = 1) const;
-    virtual double calculateTotal(int quantity = 1) const;
+    virtual double calculateTax(int quantity = 1);
+    virtual double calculateTotal(int quantity = 1);
 
     // Pure virtual methods
-    virtual void describe() const = 0;
-    virtual string getProductType() const = 0;
+    virtual void describe() = 0;
 
     // Storable interface methods
     virtual string toRecord() const override;
