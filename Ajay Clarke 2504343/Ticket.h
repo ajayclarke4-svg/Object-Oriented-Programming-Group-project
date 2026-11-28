@@ -1,125 +1,138 @@
 #ifndef TICKET_H
 #define TICKET_H
 
+#include <iostream>
 #include <string>
-#include "Storable.h"
-class Ticket : public Storable {
+#include <sstream>
+#include "Exceptions.h"
+using namespace std;
+
+// ============================================================
+//  Ticket — Standalone class (does not inherit Product)
+//  Represents a match-day ticket sold to a Spectator.
+//  GCT (General Consumption Tax) = 15%
+// ============================================================
+class Ticket {
 private:
     int ticketId;
     int fixtureId;
-    string category; 
+    string category;    // "VIP", "Grandstand", "Bleachers"
     double price;
     bool isSold;
     int spectatorId;
 
+    static const double GCT_RATE;   // 0.15 — defined below
+
 public:
-    static const double TICKET_GCT_RATE = 0.15; // GCT
-    Ticket(){
-        ticketId = 0;
-        fixtureId = 0;
-        category = "General";
-        price = 0.0;
-        isSold = false;
-        spectatorId = 0;
-    };
-    Ticket(int id, int fixId, const std::string& cat, double ticketPrice, bool sold = false, int specId = 0){
-        this->ticketId = id;
-        this->fixtureId = fixId;
+    // Default constructor
+    Ticket() {
+        this->ticketId = 0;
+        this->fixtureId = 0;
+        this->category = "?";
+        this->price = 0.0;
+        this->isSold = false;
+        this->spectatorId = -1;
+    }
+
+    // Parameterised constructor
+    Ticket(int tId, int fId, string cat, double ticketPrice) {
+        if (cat != "VIP" && cat != "Grandstand" && cat != "Bleachers") {
+            throw InvalidDataException("Ticket category must be VIP, Grandstand, or Bleachers.");
+        }
+        if (ticketPrice < 0.0) {
+            throw NegativeValueException("Ticket price cannot be negative.");
+        }
+        this->ticketId = tId;
+        this->fixtureId = fId;
         this->category = cat;
         this->price = ticketPrice;
-        this->isSold = sold;
-        this->spectatorId = specId;
-    };
-    Ticket(const Ticket& other){
-        this->ticketId = other.ticketId;
-        this->fixtureId = other.fixtureId;
-        this->category = other.category;
-        this->price = other.price;
-        this->isSold = other.isSold;
-        this->spectatorId = other.spectatorId;
-    };
+        this->isSold = false;
+        this->spectatorId = -1;
+    }
 
-    // Accessors
-    int getTicketId() const{
+    // ---- Getters ----
+    int getTicketId() {
         return ticketId;
-    };
-    int getFixtureId() const{
+    }
+    int getFixtureId() {
         return fixtureId;
-    };
-    string getCategory() const{
+    }
+    string getCategory() {
         return category;
-    };
-    double getPrice() const{
+    }
+    double getPrice() {
         return price;
-    };
-    bool getIsSold() const{
+    }
+    bool getIsSold() {
         return isSold;
-    };
-    int getSpectatorId() const{
+    }
+    int getSpectatorId() {
         return spectatorId;
-    };
+    }
 
-    double calculateTax() const{
-        return price * TICKET_GCT_RATE;
-    };
-    double calculateTotalPrice() const{
+    // ---- Setters ----
+    void setPrice(double newPrice) {
+        if (newPrice < 0.0) {
+            throw NegativeValueException("Ticket price cannot be negative.");
+        }
+        this->price = newPrice;
+    }
+
+    // ---- GCT calculations ----
+    double calculateTax() {
+        return price * GCT_RATE;
+    }
+    double calculateTotal() {
         return price + calculateTax();
-    };
+    }
 
-    // Mutators with validation
-    void setTicketId(int id){
-        if (id < 0) {
-            throw InvalidDataException("Ticket ID cannot be negative.");
-        }
-        this->ticketId = id;
-    };
-    void setFixtureId(int fixId){
-        if (fixId < 0) {
-            throw InvalidDataException("Fixture ID cannot be negative.");
-        }
-        this->fixtureId = fixId;
-    };
-    void setCategory(string& cat){
-        if (cat.empty()) {
-            throw InvalidDataException("Category cannot be empty.");
-        }
-        this->category = cat;
-    };
-    void setPrice(double ticketPrice){
-        if (ticketPrice < 0) {
-            throw InvalidDataException("Ticket price cannot be negative.");
-        }
-        this->price = ticketPrice;
-    };
-    void markAsSold(int specId){
-        if (specId < 0) {
-            throw InvalidDataException("Spectator ID cannot be negative.");
+    // ---- Mark ticket as sold ----
+    void markAsSold(int specId) {
+        if (isSold) {
+            throw InvalidDataException("Ticket " + to_string(ticketId) + " is already sold.");
         }
         this->isSold = true;
         this->spectatorId = specId;
-    };
-    void resetSold(){
-        this->isSold = false;
-        this->spectatorId = 0;
-    };
+    }
 
-    // Display
+    // ---- Display ----
     void displayTicketDetails() {
-        cout << "Ticket ID: " << ticketId << "\n";
-        cout << "Fixture ID: " << fixtureId << "\n";
-        cout << "Category: " << category << "\n";
-        cout << "Price: $" << price << "\n";
-        cout << "Tax: $" << calculateTax() << "\n";
-        cout << "Total Price: $" << calculateTotalPrice() << "\n";
-        cout << "Sold: " << (isSold ? "Yes" : "No") << "\n";
+        cout << "=== Ticket Details ===" << endl;
+        cout << "Ticket ID     : " << ticketId << endl;
+        cout << "Fixture ID    : " << fixtureId << endl;
+        cout << "Category      : " << category << endl;
+        cout << fixed;
+        cout.precision(2);
+        cout << "Price         : $" << price << endl;
+        cout << "GCT (15%)     : $" << calculateTax() << endl;
+        cout << "Total         : $" << calculateTotal() << endl;
+        cout << "Status        : " << (isSold ? "Sold" : "Available") << endl;
         if (isSold) {
-            cout << "Spectator ID: " << spectatorId << "\n";
+            cout << "Spectator ID  : " << spectatorId << endl;
         }
-    };
+    }
 
-    // Storable interface methods
-    virtual string toRecord() const override;
-    virtual void fromRecord(const string& record) override;
+    // ---- File record ----
+    string toRecord() {
+        stringstream ss;
+        ss << ticketId << "|" << fixtureId << "|" << category << "|"
+           << price << "|" << (isSold ? 1 : 0) << "|" << spectatorId;
+        return ss.str();
+    }
+
+    void fromRecord(string record) {
+        stringstream ss(record);
+        string token;
+        getline(ss, token, '|'); this->ticketId = stoi(token);
+        getline(ss, token, '|'); this->fixtureId = stoi(token);
+        getline(ss, this->category, '|');
+        getline(ss, token, '|'); this->price = stod(token);
+        getline(ss, token, '|'); this->isSold = (stoi(token) == 1);
+        getline(ss, token, '|'); this->spectatorId = stoi(token);
+    }
 };
 
-#endif // TICKET_H
+// Static constant definition
+const double Ticket::GCT_RATE = 0.15;
+
+#endif

@@ -6,18 +6,28 @@
 #define SPECTATOR_H
 
 // Step 1: the Spectator's own data only. Inheritance from Person comes next.
-class Spectator {
+class Spectator : public Person{
 private:
     int ticketsBought;
-
 public:
-    Spectator();
-    Spectator(int tickets);
+    Spectator(){
+        ticketsBought = 0;
+    };
+    Spectator(int tickets){
+        this-> ticketsBought = tickets;
+    };
 
-    int getTicketsBought() const;
-    void addTicket();
+    // Getter & Setter
+    int getTicketsBought(){
+        return ticketsBought;
+    };
+    void setTicket(){
+        ticketsBought ++;
+    };
 
-    void displayInformation() const;
+    void displayInformation()override{
+        cout << "Tickets Bought: " << ticketsBought << endl;
+    };
 };
 
 #endif

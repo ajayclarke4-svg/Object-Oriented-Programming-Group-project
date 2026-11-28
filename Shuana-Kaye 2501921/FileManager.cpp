@@ -1,4 +1,5 @@
 #include "FileManager.h"
+#include "Exceptions.h"
 #include <fstream>
 #include <sstream>
 

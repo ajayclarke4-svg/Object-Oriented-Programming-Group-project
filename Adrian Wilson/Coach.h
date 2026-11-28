@@ -6,31 +6,72 @@
 
 class Coach : public Person {
 private:
-    std::string qualification;
-    std::string coachingRole;
+    string qualification;
+    string coachingRole;
     int teamId;
-
 public:
-    Coach();
-    Coach(int personId, const std::string& personName, int personAge, const std::string& personGender,
-          const std::string& coachQualification, const std::string& role, int teamIdentifier = 0);
+    Coach(){
+        qualification = "?";
+        coachingRole = "?";
+        teamId = 0;
+    };
+    Coach(string coachQualification, string role, int teamIdentifier = 0): Person(0, "?", 0, "?") {
+        setQualification(coachQualification);
+        setCoachingRole(role);
+        setTeamId(teamIdentifier);
+    };
 
     // Accessors
-    std::string getQualification() const;
-    std::string getCoachingRole() const;
-    int getTeamId() const;
+    string getQualification(){
+        return qualification;
+    };
+    string getCoachingRole(){
+        return coachingRole;
+    };
+    int getTeamId(){
+        return teamId;
+    };
 
     // Mutators with validation
-    void setQualification(const std::string& newQual);
-    void setCoachingRole(const std::string& newRole);
-    void setTeamId(int newTeamId);
+    void setQualification(string newQual){
+        if (newQual.empty()) {
+            throw InvalidDataException("Coach qualification cannot be empty.");
+        }
+        qualification = newQual;
+    };
+    void setCoachingRole(string newRole){
+        if (newRole.empty()) {
+            throw InvalidDataException("Coaching role cannot be empty.");
+        }
+        coachingRole = newRole;
+    };
+    void setTeamId(int newTeamId){
+        if (newTeamId < 0) {
+            throw InvalidDataException("Team ID cannot be negative.");
+        }
+        teamId = newTeamId;
+    };
 
     // Polymorphic display
-    virtual void displayInformation() const override;
+    virtual void displayInformation() override{
+        cout << "[Coach] ID: " << id
+              << " | Name: " << name
+              << " | Age: " << age
+              << " | Gender: " << gender
+              << " | Role: " << coachingRole
+              << " | Qualification: " << qualification
+              << " | Team ID: " << teamId << std::endl;
+    };
 
     // Storable interface methods
-    virtual std::string toRecord() const override;
-    virtual void fromRecord(const std::string& record) override;
+    virtual string toRecord() override{
+
+    };
+    virtual void fromRecord() override{
+        string record;
+
+    };
 };
 
 #endif // COACH_H
+

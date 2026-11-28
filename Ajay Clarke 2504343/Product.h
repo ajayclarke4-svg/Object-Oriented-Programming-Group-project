@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "Storable.h"
+#include "FileManager.h"
 using namespace std;
 
 // Abstract superclass for all items sold in the stadium shop
@@ -91,15 +92,47 @@ public:
     };
 
     // Tax calculation
-    virtual double calculateTax(int quantity = 1);
-    virtual double calculateTotal(int quantity = 1);
+    virtual double calculateTax(int quantity = 1){
+         return (price * quantity) * GCT_RATE;
+    };
+    virtual double calculateTotal(int quantity = 1){
+        double subtotal = price * quantity;
+        return subtotal + calculateTax(quantity);
+    };
+
+    virtual string getProductType() const {
+        return "Product";
+    };
 
     // Pure virtual methods
     virtual void describe() = 0;
 
-    // Storable interface methods
-    virtual string toRecord() const override;
-    virtual void fromRecord(const string& record) override;
+    // Write to file 
+    string Product::toRecord() const {
+        vector<string> fields;
+
+        fields.push_back(getProductType());
+        fields.push_back(FileManager::toText(productId));
+        fields.push_back(name);
+        fields.push_back(FileManager::toText(price));
+        fields.push_back(FileManager::toText(stock));
+
+        return FileManager::joinFields(fields);
+    }
+
+    // Read to file
+    void Product::fromRecord(const string& record) {
+        vector<string> fields = FileManager::splitFields(record);
+
+        if (fields.size() < 5) {
+            throw InvalidDataException("Product record requires at least 5 fields: " + record);
+        }
+
+        setProductId(FileManager::toInt(fields[1]));
+        setName(fields[2]);
+        setPrice(FileManager::toDouble(fields[3]));
+        setStock(FileManager::toInt(fields[4]));
+    }
 };
 
 #endif // PRODUCT_H

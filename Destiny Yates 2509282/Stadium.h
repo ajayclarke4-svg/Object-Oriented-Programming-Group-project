@@ -1,117 +1,163 @@
 #ifndef STADIUM_H
 #define STADIUM_H
 
-using namespace std;
+#include <iostream>
 #include <string>
-#include "Storable.h"
-#pragma once
+#include <sstream>
+#include <iomanip>
+#include "Exceptions.h"
+using namespace std;
 
+//  Stadium — Represents a match venue
 class Stadium {
-    private:
-        int stadiumId;
-        string name;
-        string location;
-    
-        string fieldCondition;
-        double ticketPrice;
-        int ticketsSold;
-        int occupancy;
+private:
+    int stadiumId;
+    string name;
+    string location;
+    int capacity;
+    string fieldCondition;  // "Excellent", "Good", "Fair", "Poor"
+    double ticketPrice;
+    int ticketsSold;
 
-    public:
-        // Default constructor
-        Stadium(){
-            stadiumId = 0;
-            name = "";
-            location = "";
-            fieldCondition = "";
-            ticketPrice = 0.0;
-            ticketsSold = 0;
-            occupancy = 0;
-        };
+public:
+    // Default constructor
+    Stadium() {
+        this->stadiumId = 0;
+        this->name = "?";
+        this->location = "?";
+        this->capacity = 0;
+        this->fieldCondition = "Good";
+        this->ticketPrice = 0.0;
+        this->ticketsSold = 0;
+    }
 
-        // Parameterized constructor
-        Stadium(string name, int occupancy)
-        {
-            this->name = name;
-            this->occupancy = occupancy;
-        };
-        //Copy constructor
-        Stadium(const Stadium& S);
-        {
-            this->stadiumId = S.stadiumId;
-            this->name = S.name;
-            this->location = S.location;
-            this->capacity = S.capacity;
-            this->fieldCondition = S.fieldCondition;
-            this->ticketPrice = S.ticketPrice;
-            this->ticketsSold = S.ticketsSold;
-            this->occupancy = S.occupancy;
-        };
-        void sellTickets(int ticketsSold){
-            if (ticketsSold + ticketsSold > occupancy) {
-                throw std::runtime_error("Cannot sell more tickets than the stadium's capacity.");
-            }
-            this->ticketsSold += ticketsSold;
-        };
+    // Parameterised constructor
+    Stadium(int id, string stadiumName, string stadiumLocation,
+            int stadiumCapacity, string condition, double price) {
+        if (stadiumName.empty()) {
+            throw InvalidDataException("Stadium name cannot be empty.");
+        }
+        if (stadiumCapacity <= 0) {
+            throw InvalidDataException("Stadium capacity must be greater than zero.");
+        }
+        if (price < 0.0) {
+            throw NegativeValueException("Ticket price cannot be negative.");
+        }
+        this->stadiumId = id;
+        this->name = stadiumName;
+        this->location = stadiumLocation;
+        this->capacity = stadiumCapacity;
+        this->fieldCondition = condition;
+        this->ticketPrice = price;
+        this->ticketsSold = 0;
+    }
 
-        //Mutators
-        void setStadiumId(int stadiumId){
-            this->stadiumId = stadiumId;
-        };
-        void setName(string name){
-            this->name = name;
-        };
-        void setLocation(string location){
-            this->location = location;
-        };
-        void setFieldCondition(string fieldCondition){
-            this->fieldCondition = fieldCondition;
-        };
-        void setTicketPrice(double ticketPrice){
-            this->ticketPrice = ticketPrice;
-        };
-        void setTicketsSold(int ticketsSold){
-            this->ticketsSold = ticketsSold;
-        };
-        void setOccupancy(int occupancy){
-            this->occupancy = occupancy;
-        };
+    // ---- Getters ----
+    int getStadiumId() {
+        return stadiumId;
+    }
+    string getName() {
+        return name;
+    }
+    string getLocation() {
+        return location;
+    }
+    int getCapacity() {
+        return capacity;
+    }
+    string getFieldCondition() {
+        return fieldCondition;
+    }
+    double getTicketPrice() {
+        return ticketPrice;
+    }
+    int getTicketsSold() {
+        return ticketsSold;
+    }
+    int getSeatsRemaining() {
+        return capacity - ticketsSold;
+    }
 
-        //Accessors
-        int getStadiumId(){
-            return stadiumId;
-        };
-        string getName(){
-            return name;
-        };
-        string getLocation(){
-            return location;
-        };
-        int getCapacity(){
-            return occupancy;
-        };
-        string getFieldCondition(){
-            return fieldCondition;
-        };
-        double getTicketPrice(){
-            return ticketPrice;
-        };
-        int getTicketsSold(){
-            return ticketsSold;
-        };
-        int getOccupancy(){
-            return occupancy;
-        };
+    // ---- Setters ----
+    void setName(string newName) {
+        if (newName.empty()) {
+            throw InvalidDataException("Stadium name cannot be empty.");
+        }
+        this->name = newName;
+    }
+    void setLocation(string newLocation) {
+        this->location = newLocation;
+    }
+    void setCapacity(int newCapacity) {
+        if (newCapacity <= 0) {
+            throw InvalidDataException("Capacity must be greater than zero.");
+        }
+        this->capacity = newCapacity;
+    }
+    void setFieldCondition(string newCondition) {
+        this->fieldCondition = newCondition;
+    }
+    void setTicketPrice(double newPrice) {
+        if (newPrice < 0.0) {
+            throw NegativeValueException("Ticket price cannot be negative.");
+        }
+        this->ticketPrice = newPrice;
+    }
+    void setTicketsSold(int sold) {
+        this->ticketsSold = sold;
+    }
 
-        //ticket sales cannot exceed capacity of stadium
-        void TicketsSold(int quantity){
-            if (ticketsSold + quantity > occupancy) {
-                throw std::runtime_error("Cannot sell more tickets than the stadium's capacity.");
-            }
-            ticketsSold += quantity;
-        };
+    // ---- Business rule: ticket sales cannot exceed capacity ----
+    void sellTickets(int qty) {
+        if (qty <= 0) {
+            throw InvalidDataException("Quantity of tickets must be greater than zero.");
+        }
+        if (ticketsSold + qty > capacity) {
+            throw CapacityExceededException(
+                "Cannot sell " + to_string(qty) + " tickets. Only " +
+                to_string(getSeatsRemaining()) + " seats remaining at " + name + ".");
+        }
+        this->ticketsSold += qty;
+    }
 
-        
+    // ---- Reset ticket sales for a new fixture ----
+    void resetTicketSales() {
+        this->ticketsSold = 0;
+    }
+
+    // ---- Display ----
+    void displayInformation() {
+        cout << "=== Stadium Information ===" << endl;
+        cout << "ID               : " << stadiumId << endl;
+        cout << "Name             : " << name << endl;
+        cout << "Location         : " << location << endl;
+        cout << "Capacity         : " << capacity << endl;
+        cout << "Field Condition  : " << fieldCondition << endl;
+        cout << fixed << setprecision(2);
+        cout << "Ticket Price     : $" << ticketPrice << endl;
+        cout << "Tickets Sold     : " << ticketsSold << endl;
+        cout << "Seats Remaining  : " << getSeatsRemaining() << endl;
+    }
+
+    // ---- File record ----
+    string toRecord() {
+        stringstream ss;
+        ss << stadiumId << "|" << name << "|" << location << "|"
+           << capacity << "|" << fieldCondition << "|" << ticketPrice << "|" << ticketsSold;
+        return ss.str();
+    }
+
+    void fromRecord(string record) {
+        stringstream ss(record);
+        string token;
+        getline(ss, token, '|'); this->stadiumId = stoi(token);
+        getline(ss, this->name, '|');
+        getline(ss, this->location, '|');
+        getline(ss, token, '|'); this->capacity = stoi(token);
+        getline(ss, this->fieldCondition, '|');
+        getline(ss, token, '|'); this->ticketPrice = stod(token);
+        getline(ss, token, '|'); this->ticketsSold = stoi(token);
+    }
 };
 
-#endif // STADIUM_H
+#endif

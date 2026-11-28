@@ -1,44 +1,110 @@
 #ifndef LEAGUECOMMISSIONER_H
 #define LEAGUECOMMISSIONER_H
 
-#include "Person.h"
+#include <iostream>
 #include <string>
+#include <sstream>
+#include "Person.h"
+using namespace std;
 
-class FootballTeam;
-class Stadium;
-
+// ============================================================
+//  LeagueCommissioner — inherits Person
+//  The executive head of the football league.
+// ============================================================
 class LeagueCommissioner : public Person {
 private:
-    std::string officeLocation;
-    std::string badgeNumber;
+    string officeLocation;
+    string badgeNumber;
     int yearsInService;
 
 public:
-    LeagueCommissioner();
-    LeagueCommissioner(int personId, const std::string& personName, int personAge, const std::string& personGender,
-                       const std::string& office = "KPFL Headquarters, Kingston",
-                       const std::string& badge = "COMM-01", int years = 5);
+    // Default constructor
+    LeagueCommissioner() : Person() {
+        this->officeLocation = "?";
+        this->badgeNumber = "?";
+        this->yearsInService = 0;
+    }
 
-    // Accessors
-    std::string getOfficeLocation() const;
-    std::string getBadgeNumber() const;
-    int getYearsInService() const;
+    // Parameterised constructor
+    LeagueCommissioner(int personId, string personName, int personAge, string personGender,
+                       string location, string badge, int years)
+        : Person(personId, personName, personAge, personGender) {
+        if (location.empty()) {
+            throw InvalidDataException("Office location cannot be empty.");
+        }
+        if (badge.empty()) {
+            throw InvalidDataException("Badge number cannot be empty.");
+        }
+        if (years < 0) {
+            throw NegativeValueException("Years in service cannot be negative.");
+        }
+        this->officeLocation = location;
+        this->badgeNumber = badge;
+        this->yearsInService = years;
+    }
 
-    // Mutators with validation
-    void setOfficeLocation(const std::string& office);
-    void setBadgeNumber(const std::string& badge);
-    void setYearsInService(int years);
+    // ---- Getters ----
+    string getOfficeLocation() {
+        return officeLocation;
+    }
+    string getBadgeNumber() {
+        return badgeNumber;
+    }
+    int getYearsInService() {
+        return yearsInService;
+    }
 
-    // League Coordination Responsibilities
-    bool approveTeamRegistration(FootballTeam& team);
-    bool inspectStadium(Stadium& stadium) const;
+    // ---- Setters ----
+    void setOfficeLocation(string newLocation) {
+        if (newLocation.empty()) {
+            throw InvalidDataException("Office location cannot be empty.");
+        }
+        this->officeLocation = newLocation;
+    }
+    void setBadgeNumber(string newBadge) {
+        if (newBadge.empty()) {
+            throw InvalidDataException("Badge number cannot be empty.");
+        }
+        this->badgeNumber = newBadge;
+    }
+    void setYearsInService(int newYears) {
+        if (newYears < 0) {
+            throw NegativeValueException("Years in service cannot be negative.");
+        }
+        this->yearsInService = newYears;
+    }
 
-    // Polymorphic display
-    virtual void displayInformation() const override;
+    // ---- Override pure virtual methods ----
+    void displayInformation() {
+        cout << "=== League Commissioner Information ===" << endl;
+        cout << "ID               : " << id << endl;
+        cout << "Name             : " << name << endl;
+        cout << "Age              : " << age << endl;
+        cout << "Gender           : " << gender << endl;
+        cout << "Office Location  : " << officeLocation << endl;
+        cout << "Badge Number     : " << badgeNumber << endl;
+        cout << "Years in Service : " << yearsInService << endl;
+    }
 
-    // Storable interface methods
-    virtual std::string toRecord() const override;
-    virtual void fromRecord(const std::string& record) override;
+    string toRecord() {
+        // Format: id|name|age|gender|officeLocation|badgeNumber|yearsInService
+        stringstream ss;
+        ss << id << "|" << name << "|" << age << "|" << gender << "|"
+           << officeLocation << "|" << badgeNumber << "|" << yearsInService;
+        return ss.str();
+    }
+
+    void fromRecord(string record) {
+        stringstream ss(record);
+        string token;
+        getline(ss, token, '|'); this->id = stoi(token);
+        getline(ss, this->name, '|');
+        getline(ss, token, '|'); this->age = stoi(token);
+        getline(ss, this->gender, '|');
+        getline(ss, this->officeLocation, '|');
+        getline(ss, this->badgeNumber, '|');
+        getline(ss, token, '|'); this->yearsInService = stoi(token);
+    }
 };
 
-#endif // LEAGUECOMMISSIONER_H
+#endif

@@ -3,9 +3,10 @@
 
 #pragma once
 #include <string>
+#include "Person.h"
 using namespace std;
 
-class MatchOfficial {
+class MatchOfficial : public Person {
     private:
         string officiatingRole;
         string rank;

@@ -3,105 +3,99 @@
 
 #include <stdexcept>
 #include <string>
+using namespace std;
 
-// Base exception for all KPFL league operations
-class LeagueException : public std::runtime_error {
+// ============================================================
+//  Base league exception — all custom exceptions inherit this
+// ============================================================
+class LeagueException : public runtime_error {
 public:
-    explicit LeagueException(const std::string& message)
-        : std::runtime_error(message) {}
+    LeagueException(string msg) : runtime_error(msg) {}
 };
 
-// Entity lookup exceptions
-class TeamNotFoundException : public LeagueException {
-public:
-    explicit TeamNotFoundException(const std::string& message)
-        : LeagueException("Team Error: " + message) {}
-};
-
-class PlayerNotFoundException : public LeagueException {
-public:
-    explicit PlayerNotFoundException(const std::string& message)
-        : LeagueException("Player Error: " + message) {}
-};
-
-class CoachNotFoundException : public LeagueException {
-public:
-    explicit CoachNotFoundException(const std::string& message)
-        : LeagueException("Coach Error: " + message) {}
-};
-
-class OfficialNotFoundException : public LeagueException {
-public:
-    explicit OfficialNotFoundException(const std::string& message)
-        : LeagueException("Match Official Error: " + message) {}
-};
-
-class StadiumNotFoundException : public LeagueException {
-public:
-    explicit StadiumNotFoundException(const std::string& message)
-        : LeagueException("Stadium Error: " + message) {}
-};
-
-class FixtureNotFoundException : public LeagueException {
-public:
-    explicit FixtureNotFoundException(const std::string& message)
-        : LeagueException("Fixture Error: " + message) {}
-};
-
-class ProductNotFoundException : public LeagueException {
-public:
-    explicit ProductNotFoundException(const std::string& message)
-        : LeagueException("Product Error: " + message) {}
-};
-
-// Business rule exceptions
+// ============================================================
+//  Data / validation errors
+// ============================================================
 class InvalidDataException : public LeagueException {
 public:
-    explicit InvalidDataException(const std::string& message)
-        : LeagueException("Invalid Data Error: " + message) {}
+    InvalidDataException(string msg) : LeagueException(msg) {}
 };
 
 class NegativeValueException : public LeagueException {
 public:
-    explicit NegativeValueException(const std::string& message)
-        : LeagueException("Negative Value Error: " + message) {}
+    NegativeValueException(string msg) : LeagueException(msg) {}
 };
 
-class CapacityExceededException : public LeagueException {
+class DuplicateEntryException : public LeagueException {
 public:
-    explicit CapacityExceededException(const std::string& message)
-        : LeagueException("Capacity Exceeded Error: " + message) {}
+    DuplicateEntryException(string msg) : LeagueException(msg) {}
 };
 
-class SchedulingConflictException : public LeagueException {
+// ============================================================
+//  Team / player errors
+// ============================================================
+class TeamNotFoundException : public LeagueException {
 public:
-    explicit SchedulingConflictException(const std::string& message)
-        : LeagueException("Scheduling Conflict Error: " + message) {}
+    TeamNotFoundException(string msg) : LeagueException(msg) {}
+};
+
+class PlayerNotFoundException : public LeagueException {
+public:
+    PlayerNotFoundException(string msg) : LeagueException(msg) {}
 };
 
 class TeamIneligibleException : public LeagueException {
 public:
-    explicit TeamIneligibleException(const std::string& message)
-        : LeagueException("Team Eligibility Error: " + message) {}
+    TeamIneligibleException(string msg) : LeagueException(msg) {}
 };
 
-class InsufficientPaymentException : public LeagueException {
+// ============================================================
+//  Fixture / scheduling errors
+// ============================================================
+class FixtureNotFoundException : public LeagueException {
 public:
-    explicit InsufficientPaymentException(const std::string& message)
-        : LeagueException("Payment Error: " + message) {}
+    FixtureNotFoundException(string msg) : LeagueException(msg) {}
+};
+
+class SchedulingConflictException : public LeagueException {
+public:
+    SchedulingConflictException(string msg) : LeagueException(msg) {}
 };
 
 class FixtureNotCompletedException : public LeagueException {
 public:
-    explicit FixtureNotCompletedException(const std::string& message)
-        : LeagueException("Fixture Completion Error: " + message) {}
+    FixtureNotCompletedException(string msg) : LeagueException(msg) {}
 };
 
-// File persistence exception
-class FileException : public LeagueException {
+// ============================================================
+//  Stadium / ticket errors
+// ============================================================
+class StadiumNotFoundException : public LeagueException {
 public:
-    explicit FileException(const std::string& message)
-        : LeagueException("File Error: " + message) {}
+    StadiumNotFoundException(string msg) : LeagueException(msg) {}
 };
 
-#endif // EXCEPTIONS_H
+class CapacityExceededException : public LeagueException {
+public:
+    CapacityExceededException(string msg) : LeagueException(msg) {}
+};
+
+// ============================================================
+//  Financial errors
+// ============================================================
+class InsufficientPaymentException : public LeagueException {
+public:
+    InsufficientPaymentException(string msg) : LeagueException(msg) {}
+};
+
+class ProductNotFoundException : public LeagueException {
+public:
+    ProductNotFoundException(string msg) : LeagueException(msg) {}
+};
+
+class InsufficientStockException : public LeagueException {
+public:
+    InsufficientStockException(string msg) : LeagueException(msg) {}
+};
+
+#endif

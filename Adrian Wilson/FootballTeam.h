@@ -1,3 +1,5 @@
+
+
 #ifndef FOOTBALLTEAM_H
 #define FOOTBALLTEAM_H
 
@@ -7,19 +9,22 @@
 #include "Player.h"
 #include "Coach.h"
 
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <stdexcept>
+using namespace std;
+
 class FootballTeam : public Storable {
 private:
     int teamId;
-    std::string name;
-    std::string parish;
-    std::string registrationNumber;
+    string name;
+    string parish;
+    string registrationNumber;
     int squadSize;
-    std::string leagueStatus; // "Registered", "Unregistered", "Suspended"
+    string leagueStatus;
 
-    std::vector<Player> players;
-    std::vector<Coach> coaches;
-
-    // League standings statistics
     int points;
     int matchesPlayed;
     int wins;
@@ -28,65 +33,325 @@ private:
     int goalsFor;
     int goalsAgainst;
 
+    vector<Player> players;
+    vector<Coach> coaches;
 public:
-    FootballTeam();
-    FootballTeam(int id, const std::string& teamName, const std::string& teamParish,
-                 const std::string& regNumber, const std::string& status = "Unregistered");
+    FootballTeam() {
+        teamId = 0;
+        name = "?";
+        parish = "?";
+        registrationNumber = "?";
+        squadSize = 0;
+        leagueStatus = "Unregistered";
 
-    // Accessors
-    int getTeamId() const;
-    std::string getName() const;
-    std::string getParish() const;
-    std::string getRegistrationNumber() const;
-    int getSquadSize() const;
-    std::string getLeagueStatus() const;
-    bool isEligibleForFixture() const;
+        points = 0;
+        matchesPlayed = 0;
+        wins = 0;
+        draws = 0;
+        losses = 0;
+        goalsFor = 0;
+        goalsAgainst = 0;
+    }
+    FootballTeam(
+        int newTeamId,
+        string newName,
+        string newParish,
+        string regNum,
+        string status) 
+    {
+        setTeamId(newTeamId);
+        setName(newName);
+        setParish(newParish);
+        setRegistrationNumber(regNum);
+        setLeagueStatus(status);
 
-    int getPoints() const;
-    int getMatchesPlayed() const;
-    int getWins() const;
-    int getDraws() const;
-    int getLosses() const;
-    int getGoalsFor() const;
-    int getGoalsAgainst() const;
-    int getGoalDifference() const;
+        squadSize = 0;
 
-    const std::vector<Player>& getPlayers() const;
-    const std::vector<Coach>& getCoaches() const;
+        points = 0;
+        matchesPlayed = 0;
+        wins = 0;
+        draws = 0;
+        losses = 0;
+        goalsFor = 0;
+        goalsAgainst = 0;
+    }
 
-    // Mutators with validation
-    void setTeamId(int id);
-    void setName(const std::string& newName);
-    void setParish(const std::string& newParish);
-    void setRegistrationNumber(const std::string& regNumber);
-    void setLeagueStatus(const std::string& newStatus);
+    //=====================
+    // GETTERS
+    //=====================
 
-    void setStats(int pts, int played, int w, int d, int l, int gf, int ga);
+    int getTeamId() {
+        return teamId;
+    }
+    string getName() {
+        return name;
+    }
+    string getParish() {
+        return parish;
+    }
+    string getRegistrationNumber() {
+        return registrationNumber;
+    }
+    int getSquadSize() {
+        return squadSize;
+    }
+    string getLeagueStatus() {
+        return leagueStatus;
+    }
+    int getPoints() {
+        return points;
+    }
+    int getMatchesPlayed() {
+        return matchesPlayed;
+    }
+    int getWins() {
+        return wins;
+    }
+    int getDraws() {
+        return draws;
+    }
+    int getLosses() {
+        return losses;
+    }
+    int getGoalsFor() {
+        return goalsFor;
+    }
+    int getGoalsAgainst() {
+        return goalsAgainst;
+    }
+    int getGoalDifference() {
+        return goalsFor - goalsAgainst;
+    }
 
-    // Player and Coach Management
-    void addPlayer(const Player& player);
-    bool removePlayer(int playerId);
-    Player* findPlayer(int playerId);
-    const Player* findPlayer(int playerId) const;
-    bool updatePlayer(const Player& player);
+    vector<Player>& getPlayers() {
+        return players;
+    }
+    vector<Coach>& getCoaches() {
+        return coaches;
+    }
 
-    void addCoach(const Coach& coach);
-    bool removeCoach(int coachId);
-    Coach* findCoach(int coachId);
-    const Coach* findCoach(int coachId) const;
-    bool updateCoach(const Coach& coach);
+    //=====================
+    // SETTERS
+    //=====================
 
-    // League Operations
-    void recordMatchResult(int scored, int conceded);
-    void resetStats();
+    void setTeamId(int newId) {
 
-    // Display
-    void displayInformation() const;
-    void displayRoster() const;
+        if (newId < 0) {
+            throw InvalidDataException(
+                "Team ID cannot be negative.");
+        }
 
-    // Storable interface methods
-    virtual std::string toRecord() const override;
-    virtual void fromRecord(const std::string& record) override;
+        teamId = newId;
+    }
+    void setName(string newName) {
+
+        if (newName.empty()) {
+            throw InvalidDataException(
+                "Team name cannot be empty.");
+        }
+
+        name = newName;
+    }
+    void setParish(string newParish) {
+
+        if (newParish.empty()) {
+            throw InvalidDataException(
+                "Parish cannot be empty.");
+        }
+
+        parish = newParish;
+    }
+    void setRegistrationNumber(string regNum) {
+
+        if (regNum.empty()) {
+            throw InvalidDataException(
+                "Registration number cannot be empty.");
+        }
+
+        registrationNumber = regNum;
+    }
+    void setLeagueStatus(string status) {
+
+        if (
+            status != "Registered" &&
+            status != "Unregistered" &&
+            status != "Suspended"
+        ) {
+            throw InvalidDataException(
+                "Invalid League Status.");
+        }
+
+        leagueStatus = status;
+    }
+
+    //=====================
+    // PLAYERS
+    //=====================
+
+    void addPlayer(Player player) {
+        for (int i = 0; i < players.size(); i++) {
+            if (players[i].getId() == player.getId()) {
+                throw InvalidDataException("Player already exists.");
+            }
+        }
+        player.setTeamId(teamId);
+
+        players.push_back(player);
+
+        squadSize = players.size();
+    }
+    bool removePlayer(int playerId) {
+        for (int i = 0; i < players.size(); i++) {
+            if (players[i].getId() == playerId) {
+                players.erase(players.begin() + i);
+
+                squadSize = players.size();
+                return true;
+            }
+        }
+        return false;
+    }
+    Player* findPlayer(int playerId) {
+        for (int i = 0; i < players.size(); i++) {
+            if (players[i].getId() == playerId) {
+                return &players[i];
+            }
+        }
+        return nullptr;
+    }
+
+    //=====================
+    // COACHES
+    //=====================
+
+    void addCoach(Coach coach) {
+        for (int i = 0; i < coaches.size(); i++) {
+            if (coaches[i].getId() == coach.getId()) {
+                throw InvalidDataException("Coach already exists.");
+            }
+        }
+        coach.setTeamId(teamId);
+
+        coaches.push_back(coach);
+    }
+    bool removeCoach(int coachId) {
+        for (int i = 0; i < coaches.size(); i++) {
+            if (coaches[i].getId() == coachId) {
+                    coaches.erase(
+                    coaches.begin() + i);
+
+                return true;
+            }
+        }
+        return false;
+    }
+    Coach* findCoach(int coachId) {
+        for (int i = 0; i < coaches.size(); i++) {
+            if (coaches[i].getId()
+                == coachId) {
+
+                return &coaches[i];
+            }
+        }
+        return nullptr;
+    }
+
+    //=====================
+    // TEAM STATS
+    //=====================
+
+    void recordMatchResult(int goalsScored, int goalsConceded ) {
+        if (
+            goalsScored < 0 ||
+            goalsConceded < 0
+        ) {
+            throw NegativeValueException(
+                "Goals cannot be negative.");
+        }
+        matchesPlayed++;
+        goalsFor += goalsScored;
+        goalsAgainst += goalsConceded;
+
+        if (goalsScored > goalsConceded) {
+            wins++;
+            points += 3;
+        }
+        else if (goalsScored == goalsConceded) {
+            draws++;
+            points += 1;
+        }
+        else {
+            losses++;
+        }
+    }
+
+    //=====================
+    // DISPLAY
+    //=====================
+
+    void displayInformation() {
+
+        cout << "\n[TEAM]"
+             << "\nID: " << teamId
+             << "\nName: " << name
+             << "\nParish: " << parish
+             << "\nReg#: " << registrationNumber
+             << "\nStatus: " << leagueStatus
+             << "\nPlayers: " << squadSize
+             << "\nPoints: " << points
+             << endl;
+    }
+
+    //=====================
+    // FILE HANDLING
+    //=====================
+
+    string toRecord() {
+        return
+            FileManager::toText(teamId) + "," + name + "," + parish + "," + registrationNumber + "," +
+            FileManager::toText(squadSize) + "," + leagueStatus + "," +
+            FileManager::toText(points) + "," +
+            FileManager::toText(matchesPlayed) + "," +
+            FileManager::toText(wins) + "," +
+            FileManager::toText(draws) + "," +
+            FileManager::toText(losses) + "," +
+            FileManager::toText(goalsFor) + "," +
+            FileManager::toText(goalsAgainst);
+    }
+
+    void fromRecord(string record) {
+        vector<string> fields =
+            FileManager::splitFields(record);
+        if (fields.size() < 13) {
+            throw runtime_error(
+                "FootballTeam record requires 13 fields.");
+        }
+        setTeamId(FileManager::toInt(fields[0]));
+
+        setName(fields[1]);
+
+        setParish(fields[2]);
+
+        setRegistrationNumber(fields[3]);
+
+        squadSize = FileManager::toInt(fields[4]);
+
+        setLeagueStatus(fields[5]);
+
+        points = FileManager::toInt(fields[6]);
+
+        matchesPlayed = FileManager::toInt(fields[7]);
+
+        wins = FileManager::toInt(fields[8]);
+
+        draws = FileManager::toInt(fields[9]);
+
+        losses = FileManager::toInt(fields[10]);
+
+        goalsFor = FileManager::toInt(fields[11]);
+
+        goalsAgainst = FileManager::toInt(fields[12]);
+    }
 };
 
-#endif // FOOTBALLTEAM_H
+#endif
